@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الاستعلام عن نتائج اختبار تحديد المستوى</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-card, #printable-card * {
+                visibility: visible;
+            }
+            #printable-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                border: none;
+                box-shadow: none;
+                background: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-blue-900 to-indigo-950 text-white shadow-lg no-print">
+        <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 text-center sm:text-right">
+                <div class="p-2.5 bg-white/10 rounded-xl">
+                    <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-wide">بوابة نتائج اختبار تحديد المستوى</h1>
+                    <p class="text-xs text-blue-200 font-medium">Placement Test Results Portal</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="flex bg-white/10 p-1 rounded-lg">
+                <button id="tab-search" onclick="switchTab('search')" class="px-5 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-amber-500 text-slate-950 shadow">
+                    🔍 استعلام الطلاب
+                </button>
+                <button id="tab-admin" onclick="openAdminAuthModal()" class="px-5 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-white hover:bg-white/5">
+                    🔒 لوحة التحكم (الإدارة)
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8">
+        
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="fixed top-5 left-5 z-50 flex flex-col gap-2 pointer-events-none no-print"></div>
+
+        <!-- TAB 1: Search Portal (Student View) -->
+        <section id="view-search" class="space-y-8 animate-fade-in">
+            <!-- Intro Card -->
+            <div class="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-sm text-center max-w-3xl mx-auto">
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">الاستعلام الآمن والمبسط</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3 mb-2">استعلم عن نتيجتك بالاسم فقط</h2>
+
+                <!-- Secure Search Form -->
+                <div class="mt-8 max-w-xl mx-auto text-right space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-extrabold text-slate-500 block mr-1">اكتب اسم الطالب كاملاً أو جزءاً منه *</label>
+                        <div class="relative">
+                            <input type="text" id="search-name" placeholder="مثال: Lillian Hossam" class="w-full px-5 py-4 rounded-xl bg-white border-2 border-slate-200 focus:border-blue-600 focus:outline-none text-slate-800 font-semibold text-right shadow-sm text-lg">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="performSecureSearch()" class="w-full py-4 bg-gradient-to-r from-blue-700 to-indigo-850 hover:from-blue-850 hover:to-indigo-950 text-white font-bold rounded-2xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-center flex items-center justify-center gap-2 mt-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        عرض إفادة التقييم الآن
+                    </button>
+                </div>
+            </div>
+
+            <!-- Matching Students Selector (Shown if multiple matches found) -->
+            <div id="matches-container" class="hidden max-w-xl mx-auto bg-amber-50 border border-amber-200 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="text-right">
+                    <h4 class="text-base font-bold text-amber-900">تم العثور على أكثر من نتيجة متطابقة:</h4>
+                    <p class="text-xs text-amber-700 mt-1">يرجى الضغط على اسمك الصحيح لاستعراض نتيجتك الفردية وبشكل آمن:</p>
+                </div>
+                <div id="matches-list" class="grid grid-cols-1 gap-2">
+                    <!-- Dynamic Buttons -->
+                </div>
+            </div>
+
+            <!-- Result Sheet/Card Component -->
+            <div id="result-container" class="hidden max-w-2xl mx-auto transition-all duration-300">
+                <!-- Gorgeous Certificate-Style Result Slip -->
+                <div id="printable-card" class="bg-white rounded-3xl border-4 border-double border-slate-200 p-8 sm:p-10 shadow-xl relative overflow-hidden">
+                    
+                    <!-- Decorative Background Badges -->
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-50 rounded-full -z-0 opacity-50"></div>
+                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-amber-50 rounded-full -z-0 opacity-50"></div>
+                    
+                    <!-- Header of Certificate -->
+                    <div class="text-center pb-6 border-b-2 border-slate-100 relative z-10">
+                        <span class="text-xs font-bold text-amber-600 border border-amber-300/60 bg-amber-50 px-4 py-1.5 rounded-full uppercase tracking-wider mb-2 inline-block">Official Result Document</span>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-2">إفادة تقييم مستوى اللغة الإنجليزية</h3>
+                        <p class="text-slate-400 text-xs mt-1">English Language Placement Evaluation Report</p>
+                    </div>
+
+                    <!-- Main Student Identity Card -->
+                    <div class="py-6 grid grid-cols-1 sm:grid-cols-2 gap-4 border-b-2 border-slate-100 relative z-10">
+                        <div class="space-y-1">
+                            <span class="text-xs text-slate-400 block font-semibold">اسم الطالب الكامل / Full Name:</span>
+                            <span id="res-name" class="text-xl font-extrabold text-slate-900 block">--</span>
+                        </div>
+                        <div class="flex gap-8">
+                            <div class="space-y-1">
+                                <span class="text-xs text-slate-400 block font-semibold">العمر / Age:</span>
+                                <span id="res-age" class="text-base font-bold text-slate-800">--</span>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-xs text-slate-400 block font-semibold">الصف / Grade:</span>
+                                <span id="res-grade" class="text-base font-bold text-slate-800">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Level Results Details Box -->
+                    <div class="py-8 space-y-6 relative z-10">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Test Conducted -->
+                            <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 flex items-center gap-3">
+                                <div class="p-3 bg-blue-100 text-blue-700 rounded-xl">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-slate-400 block font-semibold">الاختبار / Placement Test:</span>
+                                    <span id="res-test" class="text-lg font-bold text-slate-800">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Placement Result Level -->
+                            <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-100/80 flex items-center gap-3">
+                                <div class="p-3 bg-amber-100 text-amber-700 rounded-xl">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-slate-400 block font-semibold">المستوى المستحق / Target Level:</span>
+                                    <span id="res-level" class="text-lg font-extrabold text-amber-800">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Class Time Panel -->
+                        <div class="bg-indigo-900 text-white rounded-2xl p-5 shadow-inner relative overflow-hidden">
+                            <div class="absolute right-0 bottom-0 opacity-10">
+                                <svg class="w-36 h-36 translate-x-10 translate-y-10" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path>
+                                    <path d="M13 7h-2v6h6v-2h-4z"></path>
+                                </svg>
+                            </div>
+                            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                <div>
+                                    <span class="text-xs text-indigo-200 block font-semibold mb-1">توقيت وحالة حجز المجموعة المتاحة / Class Schedule & Status:</span>
+                                    <span id="res-time" class="text-lg font-bold tracking-wide">--</span>
+                                </div>
+                                <div id="status-badge" class="px-3 py-1 bg-white/20 rounded-lg text-xs font-semibold backdrop-blur-sm">
+                                    حالة الحجز نشطة
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Academic Seal & Signatures -->
+                    <div class="pt-6 border-t border-slate-100 flex justify-between items-center relative z-10">
+                        <div class="text-right">
+                            <p class="text-[11px] text-slate-400 font-bold">تم الاستخراج بتاريخ / Date of Issue</p>
+                            <p id="current-date" class="text-xs font-semibold text-slate-700">--</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <!-- Miniature Seal SVG -->
+                            <div class="w-12 h-12 text-blue-800 opacity-60">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 15l-4-4 1.41-1.41L10 13.17l5.59-5.59L17 9l-7 7z"></path>
+                                </svg>
+                            </div>
+                            <div class="text-center leading-none">
+                                <p class="text-[10px] text-slate-400 font-bold">لجنة التقييم والاختبار</p>
+                                <span class="text-xs font-extrabold text-blue-900 border-b border-blue-900/40 pb-0.5 inline-block mt-1">APPROVED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Printable Controls Bar -->
+                <div class="mt-6 flex justify-between gap-4 no-print">
+                    <button onclick="window.print()" class="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-2xl shadow-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                        </svg>
+                        طباعة النتيجة (أو الحفظ كـ PDF)
+                    </button>
+                    <button onclick="shareResult()" class="flex items-center justify-center gap-2 px-5 py-3.5 bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-700 font-bold rounded-2xl transition-colors" title="مشاركة النتيجة">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 10.742l4.237-2.022M8.684 13.258l4.237 2.022M11.414 12c0 .762-.618 1.382-1.382 1.382-.762 0-1.382-.62-1.382-1.382 0-.763.62-1.382 1.382-1.382.764 0 1.382.62 1.382 1.382zm7.244-5.258c0 .762-.618 1.382-1.382 1.382-.762 0-1.382-.62-1.382-1.382 0-.763.619-1.382 1.382-1.382.764 0 1.382.62 1.382 1.382zm0 10.516c0 .762-.618 1.382-1.382 1.382-.762 0-1.382-.62-1.382-1.382 0-.763.619-1.382 1.382-1.382.764 0 1.382.62 1.382 1.382z"></path>
+                        </svg>
+                        نسخ نص الإفادة
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Admin Dashboard (Upload Excel CSV Data) -->
+        <section id="view-admin" class="hidden space-y-8 animate-fade-in no-print">
+            
+            <!-- Admin Controls Topbar (Includes the requested Close Control Panel Button) -->
+            <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm gap-4">
+                <div class="text-right">
+                    <h3 class="text-lg font-bold text-slate-900">إدارة ورفع كشوف الطلاب</h3>
+                    <p class="text-xs text-slate-400">استخدم هذه اللوحة لتحديث كشف البيانات وإدارة الملفات المرفوعة.</p>
+                </div>
+                
+                <!-- Close Control Panel Button -->
+                <button onclick="switchTab('search')" class="w-full sm:w-auto px-5 py-3 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold rounded-xl shadow transition-colors flex items-center justify-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    إغلاق لوحة التحكم والعودة للبحث
+                </button>
+            </div>
+
+            <!-- Instructions and Statistics Header Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Quick Instructions Card -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+                            <h3 class="text-base font-bold text-slate-900">كيفية تحديث كشف البيانات</h3>
+                            <button onclick="showChangePasswordModal()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">⚙️ تغيير كلمة مرور الإدارة</button>
+                        </div>
+                        <p class="text-slate-500 text-xs leading-relaxed">
+                            لتحديث قاعدة بيانات الطلاب بأحدث كشف من ملف الإكسيل الرئيسي الخاص بك (<span class="font-bold text-slate-800">1. English Final Result.xlsx</span>)، اتبع الآتي:
+                        </p>
+                        <ol class="mt-3 list-decimal list-inside text-xs text-slate-600 space-y-1.5">
+                            <li>افتح ملف الإكسيل <span class="font-bold text-slate-800">1. English Final Result.xlsx</span> على جهازك.</li>
+                            <li>من قائمة <span class="font-bold text-slate-800">File</span> اختر <span class="font-bold text-slate-800">Save As</span>.</li>
+                            <li>قم باختيار الصيغة <span class="font-bold text-blue-600">CSV (Comma delimited) (*.csv)</span> ثم اضغط حفظ.</li>
+                            <li>قم بسحب الملف المحفوظ وإسقاطه في الصندوق المخصص في الأسفل.</li>
+                        </ol>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-400">تدعم هذه اللوحة نقل وتحديث البيانات مؤقتاً بالكامل داخل متصفحك.</span>
+                        <button onclick="triggerResetConfirmation()" class="text-xs text-amber-700 hover:text-amber-800 font-bold bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 transition-colors">إستعادة الكشف الافتراضي</button>
+                    </div>
+                </div>
+
+                <!-- Database Live Status & Counter Stats -->
+                <div class="bg-gradient-to-br from-indigo-900 to-slate-950 text-white rounded-2xl p-6 shadow-md flex flex-col justify-between">
+                    <div>
+                        <span class="bg-emerald-500 text-slate-950 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider mb-2 inline-block">حالة قاعدة البيانات</span>
+                        <h4 class="text-sm font-semibold text-indigo-200 mt-1">إحصائيات الملف المرفوع حالياً:</h4>
+                        
+                        <div class="mt-6 grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-slate-400 text-xs block font-bold">إجمالي الطلاب</span>
+                                <span id="stat-total" class="text-3xl font-extrabold text-white">0</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block font-bold">أنواع الاختبارات</span>
+                                <span id="stat-tests" class="text-3xl font-extrabold text-amber-400">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-white/10 flex justify-between items-center text-xs text-indigo-300">
+                        <span>المصدر: <span id="data-source-type" class="font-bold text-emerald-400">تلقائي مدمج</span></span>
+                        <span id="stat-update-time">محدث الآن</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Area Section -->
+            <div class="bg-white rounded-2xl border-2 border-dashed border-slate-300 p-8 text-center hover:border-blue-500 hover:bg-slate-50/50 transition-all cursor-pointer relative" id="drop-zone">
+                <input type="file" id="file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept=".csv">
+                
+                <div class="space-y-4 pointer-events-none">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800">اسحب ملف الـ CSV للنتائج وأسقطه هنا</h4>
+                        <p class="text-slate-400 text-sm mt-1">أو اضغط للتصفح واختيار الملف من جهازك يدوياً</p>
+                    </div>
+                    <div class="text-xs text-slate-400/90 max-w-md mx-auto pt-2">
+                        سيتعرف النظام تلقائياً على الأعمدة ويرتبها فوراً لعملية الاستعلام.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Upload Close Action Box (Shown dynamically when file is added) -->
+            <div id="upload-success-box" class="hidden bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center max-w-xl mx-auto space-y-3">
+                <div class="flex items-center justify-center gap-2 text-emerald-800 font-bold">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>تم تحديث ملف النتائج بنجاح!</span>
+                </div>
+                <p class="text-xs text-emerald-600">يمكنك الآن إغلاق لوحة التحكم والبدء في البحث عن نتائج الطلاب فوراً.</p>
+                <button onclick="switchTab('search')" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl text-sm shadow transition-colors inline-flex items-center gap-2">
+                    إغلاق لوحة التحكم وبدء الاستعلام ↩
+                </button>
+            </div>
+
+            <!-- Preview Database Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h4 class="text-base font-bold text-slate-900">معاينة قاعدة البيانات الحالية</h4>
+                        <p class="text-slate-400 text-xs mt-0.5">جدول تفاعلي بجميع بيانات الطلاب المخزنة مؤقتاً</p>
+                    </div>
+                    <!-- Search inside Preview -->
+                    <div class="relative">
+                        <input type="text" id="preview-search" oninput="filterPreviewTable(this.value)" placeholder="تصفية سريعة..." class="w-full sm:w-64 pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-600 font-semibold shadow-inner">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Wrapper -->
+                <div class="overflow-x-auto max-h-96">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                <th class="px-6 py-3.5">الرقم</th>
+                                <th class="px-6 py-3.5">الاسم الكامل / Full Name</th>
+                                <th class="px-6 py-3.5">العمر</th>
+                                <th class="px-6 py-3.5">الصف</th>
+                                <th class="px-6 py-3.5">الاختبار / Test</th>
+                                <th class="px-6 py-3.5">المستوى الموصى به</th>
+                                <th class="px-6 py-3.5">توقيت الحضور / الملاحظات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-table-body" class="divide-y divide-slate-100 text-sm text-slate-700">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Admin Authentication Modal -->
+    <div id="admin-auth-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-2xl relative animate-fade-in text-right">
+            <button onclick="closeAdminAuthModal()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="text-center space-y-3">
+                <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">منطقة الإدارة المحمية</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">يرجى إدخال كلمة المرور المخصصة للإدارة للوصول إلى لوحة التحكم والتحكم بالبيانات.</p>
+            </div>
+            <div class="mt-5 space-y-4">
+                <input type="password" id="admin-password-input" placeholder="اكتب كلمة المرور هنا..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:outline-none focus:border-blue-600 text-center font-bold text-lg">
+                <button onclick="verifyAdminPassword()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-colors">دخول اللوحة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="change-password-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl border border-slate-200 max-w-sm w-full p-6 shadow-2xl relative animate-fade-in text-right">
+            <button onclick="closeChangePasswordModal()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="space-y-2 mb-4">
+                <h3 class="text-lg font-bold text-slate-900">تغيير كلمة مرور الإدارة</h3>
+                <p class="text-xs text-slate-500">قم بتعيين كلمة مرور جديدة لتأمين لوحة الإدارة.</p>
+            </div>
+            <div class="space-y-4">
+                <input type="password" id="new-password-input" placeholder="كلمة المرور الجديدة" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-600 text-center font-semibold text-sm">
+                <button onclick="saveNewAdminPassword()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow transition-colors text-sm">حفظ كلمة المرور الجديدة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Beautiful Confirmation Modal (Replacer for window.confirm) -->
+    <div id="custom-confirm-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-2xl relative animate-fade-in text-right">
+            <div class="text-center space-y-3">
+                <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <h3 id="confirm-title" class="text-lg font-bold text-slate-900">تحذير أمني</h3>
+                <p id="confirm-msg" class="text-sm text-slate-500 leading-relaxed">هل أنت متأكد من رغبتك في إتمام هذا الإجراء؟</p>
+            </div>
+            <div class="mt-6 flex gap-3">
+                <button id="confirm-yes-btn" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors text-sm shadow-sm">نعم، متأكد</button>
+                <button id="confirm-no-btn" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors text-sm">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Logical Script -->
+    <script>
+        // Sample Raw CSV Data matching the exact structure from "1. English Final Result.xlsx"
+        const defaultRawCSV = `ID,Full Name,Age,Grade,Test,Level,Time
+1,Mariam Mohamed Youssef,7,1,Starters,,Cancelled the test for a refund
+2,Lillian Hossam Eldin Mahmoud,6,1,Starters,Starters  1,10:00 AM - 12:45
+3,Sophia Ahmed thabat Ismail ,6,1,Starters,Starters  1,10:00 AM - 12:45
+4,Hamza Ahmed Moussa,7,1,Starters,Movers  2,10:00 AM - 12:45
+5,Sadan Amr Mohamed,7,1,Starters,Starters  1,10:00 AM - 12:45
+6,Moussa Mostafa Ahmed,7,1,Starters,Starters  2,1:00 - 3:45 PM
+7,Mervat Mostafa Ahmed,8,1,Starters,Starters  2,1:00 - 3:45 PM
+8,Mohamed Mostafa Ahmed,7,KG2,Starters,Starters  2,1:00 - 3:45 PM
+9,Fayrouz Mohamed Sarhan ,7,1,Starters,Starters  2,1:00 - 3:45 PM
+10,Caren Mohamed,6,KG2,Starters,Starters  1,10:00 AM - 12:45
+11,Mohamed Ahmed,6,KG2,Starters,Starters  2,1:00 - 3:45 PM
+12,Yahia Mohamed Ramadan,6,KG2,Starters,Starters  1,10:00 AM - 12:45
+15,Malek Ahmed Fathy,10,5,Flyers,KET  1,10:00 AM - 12:45
+16,Engy Ahmed,10,5,Flyers,Flyers  1,10:00 AM - 12:45
+17,Hamza Mohamed Ali,11,5,Flyers,KET  1,10:00 AM - 12:45
+1,Omar Hazem Mohamed Adel,11,6,KET,Pre-KET  1,No Class this term - Can join in August
+2,Ahmed Mohamed Shash,13,7,KET,Pre-KET  1,No Class this term - Can join in August
+3,Salma Ayman Mohamed Sayed,13,7,KET,PET  1,1:00 - 3:45 PM
+4,Adham Mohamed,11,6,KET,PET  1,1:00 - 3:45 PM
+5,Adham Mohamed,13,7,KET,PET  1,1:00 - 3:45 PM
+6,Lara Ehab Fahmy,12,6,KET,PET  1,1:00 - 3:45 PM
+7,Malak Tamer Mohamed,13,8,KET,PET  1,1:00 - 3:45 PM
+8,Kareem Tamer Abdelmjeed,13,7,KET,PET  1,1:00 - 3:45 PM`;
+
+        // Database holding current parsed data
+        let database = [];
+        let adminAuthenticated = false;
+
+        // Custom Confirmation Action Store
+        let activeConfirmCallback = null;
+
+        // Application Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set current evaluation date formatting
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-EG', options);
+
+            // Load data from LocalStorage if present, otherwise load defaults
+            const savedData = localStorage.getItem('english_test_results');
+            if (savedData) {
+                try {
+                    database = JSON.parse(savedData);
+                    document.getElementById('data-source-type').innerText = "تم الرفع يدوياً";
+                    document.getElementById('data-source-type').classList.replace('text-emerald-400', 'text-blue-400');
+                } catch(e) {
+                    loadDefaultDatabase();
+                }
+            } else {
+                loadDefaultDatabase();
+            }
+
+            renderStatistics();
+            renderPreviewTable();
+            setupUploadListeners();
+        });
+
+        // Load standard default dataset
+        function loadDefaultDatabase() {
+            database = parseCSVContent(defaultRawCSV);
+            document.getElementById('data-source-type').innerText = "تلقائي مدمج";
+            document.getElementById('data-source-type').classList.add('text-emerald-400');
+        }
+
+        // CSV String Parser logic
+        function parseCSVContent(text) {
+            const lines = text.split('\n');
+            if (lines.length < 2) return [];
+
+            // Detect headers and standardize them
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
+            const results = [];
+
+            // Helper to get index based on header key names
+            const mapHeader = (keys) => {
+                return headers.findIndex(h => keys.some(key => h.includes(key)));
+            };
+
+            const idxName = mapHeader(['name', 'اسم', 'full name']);
+            const idxAge = mapHeader(['age', 'سن', 'عمر']);
+            const idxGrade = mapHeader(['grade', 'صف', 'دراسي']);
+            const idxTest = mapHeader(['test', 'اختبار']);
+            const idxLevel = mapHeader(['level', 'مستوى', 'مستحق']);
+            const idxTime = mapHeader(['time', 'موعد', 'توقيت', 'ملاحظات', 'status']);
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                // Handle CSV quotes and commas safely
+                let cells = [];
+                let insideQuotes = false;
+                let currentCell = '';
+
+                for (let char of line) {
+                    if (char === '"') {
+                        insideQuotes = !insideQuotes;
+                    } else if (char === ',' && !insideQuotes) {
+                        cells.push(currentCell.trim());
+                        currentCell = '';
+                    } else {
+                        currentCell += char;
+                    }
+                }
+                cells.push(currentCell.trim());
+
+                if (cells.length > 0) {
+                    results.push({
+                        id: i,
+                        name: cells[idxName !== -1 ? idxName : 1] || 'غير محدد',
+                        age: cells[idxAge !== -1 ? idxAge : 2] || 'غير محدد',
+                        grade: cells[idxGrade !== -1 ? idxGrade : 3] || 'غير محدد',
+                        test: cells[idxTest !== -1 ? idxTest : 4] || 'تحديد مستوى',
+                        level: cells[idxLevel !== -1 ? idxLevel : 5] || 'لم يحدد بعد',
+                        time: cells[idxTime !== -1 ? idxTime : 6] || 'يحدد لاحقاً'
+                    });
+                }
+            }
+            return results;
+        }
+
+        // Tab switcher
+        function switchTab(tab) {
+            const btnSearch = document.getElementById('tab-search');
+            const btnAdmin = document.getElementById('tab-admin');
+            const viewSearch = document.getElementById('view-search');
+            const viewAdmin = document.getElementById('view-admin');
+
+            if (tab === 'search') {
+                btnSearch.className = "px-5 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-amber-500 text-slate-950 shadow";
+                btnAdmin.className = "px-5 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-white hover:bg-white/5";
+                viewSearch.classList.remove('hidden');
+                viewAdmin.classList.add('hidden');
+                
+                // Security Fix: Revoke authorization immediately when exiting the admin panel so it requires password again next time
+                adminAuthenticated = false;
+            } else {
+                btnAdmin.className = "px-5 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-amber-500 text-slate-950 shadow";
+                btnSearch.className = "px-5 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-white hover:bg-white/5";
+                viewAdmin.classList.remove('hidden');
+                viewSearch.classList.add('hidden');
+            }
+        }
+
+        // Custom Toast Box Notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-emerald-600 text-white";
+            let icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            
+            if (type === 'error') {
+                bgClass = "bg-red-600 text-white";
+                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            } else if (type === 'info') {
+                bgClass = "bg-blue-600 text-white";
+                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            }
+
+            toast.className = `flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-xl transition-all duration-300 transform translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `${icon} <span class="text-sm font-semibold">${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Clear after 4s
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Admin Auth Flow
+        function openAdminAuthModal() {
+            if (adminAuthenticated) {
+                switchTab('admin');
+                return;
+            }
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('admin-auth-modal').classList.remove('hidden');
+        }
+
+        function closeAdminAuthModal() {
+            document.getElementById('admin-auth-modal').classList.add('hidden');
+        }
+
+        function verifyAdminPassword() {
+            const entered = document.getElementById('admin-password-input').value;
+            const correct = localStorage.getItem('admin_gate_password') || 'admin123';
+
+            if (entered === correct) {
+                adminAuthenticated = true;
+                closeAdminAuthModal();
+                switchTab('admin');
+                showToast("تم التحقق من الصلاحيات بنجاح. أهلاً بك!", "success");
+            } else {
+                showToast("عذراً، كلمة المرور المدخلة خاطئة!", "error");
+            }
+        }
+
+        // Change Admin Password Flow
+        function showChangePasswordModal() {
+            document.getElementById('new-password-input').value = '';
+            document.getElementById('change-password-modal').classList.remove('hidden');
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('change-password-modal').classList.add('hidden');
+        }
+
+        function saveNewAdminPassword() {
+            const newPass = document.getElementById('new-password-input').value;
+            if (newPass.length < 4) {
+                showToast("يجب أن تكون كلمة المرور 4 رموز أو أكثر.", "error");
+                return;
+            }
+            localStorage.setItem('admin_gate_password', newPass);
+            closeChangePasswordModal();
+            showToast("تم تحديث كلمة المرور الجديدة بنجاح.", "success");
+        }
+
+        // Custom Confirm Modal Manager
+        function showCustomConfirm(title, message, yesCallback) {
+            const modal = document.getElementById('custom-confirm-modal');
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-msg').innerText = message;
+            
+            activeConfirmCallback = yesCallback;
+            modal.classList.remove('hidden');
+        }
+
+        function closeCustomConfirm() {
+            document.getElementById('custom-confirm-modal').classList.add('hidden');
+            activeConfirmCallback = null;
+        }
+
+        // Event listeners for custom confirm modal
+        document.getElementById('confirm-yes-btn').addEventListener('click', () => {
+            if (activeConfirmCallback) activeConfirmCallback();
+            closeCustomConfirm();
+        });
+        document.getElementById('confirm-no-btn').addEventListener('click', closeCustomConfirm);
+
+        // Setup Drag, Drop and File Input listeners
+        function setupUploadListeners() {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+
+            // Click drop zone triggers file selector
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-blue-500', 'bg-slate-50/50');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-blue-500', 'bg-slate-50/50');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-blue-500', 'bg-slate-50/50');
+                
+                const file = e.dataTransfer.files[0];
+                if (file) handleFileImport(file);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) handleFileImport(file);
+            });
+        }
+
+        // File reader and importing logic
+        function handleFileImport(file) {
+            if (!file.name.endsWith('.csv')) {
+                showToast("عذراً، يجب اختيار ملف بصيغة CSV فقط (المحول من إكسيل).", "error");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const parsed = parseCSVContent(text);
+                
+                if (parsed.length > 0) {
+                    database = parsed;
+                    // Save to local storage for persistence across reloads
+                    localStorage.setItem('english_test_results', JSON.stringify(database));
+                    
+                    document.getElementById('data-source-type').innerText = "تم الرفع يدوياً";
+                    document.getElementById('data-source-type').classList.replace('text-emerald-400', 'text-blue-400');
+                    
+                    showToast(`تم استيراد الكشف بنجاح! تم تحميل تفاصيل ${database.length} طالب.`, "success");
+                    renderStatistics();
+                    renderPreviewTable();
+
+                    // Reveal the "Upload Success & Close Panel" action container
+                    document.getElementById('upload-success-box').classList.remove('hidden');
+                    document.getElementById('upload-success-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    showToast("لم نتمكن من العثور على أية سجلات صالحة في الملف.", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Reset database back to default with custom modal trigger
+        function triggerResetConfirmation() {
+            showCustomConfirm(
+                "استعادة البيانات الافتراضية",
+                "هل أنت متأكد من رغبتك في استعادة قاعدة البيانات الافتراضية؟ سيؤدي ذلك لحذف الملف المرفوع حالياً بالكامل.",
+                function() {
+                    localStorage.removeItem('english_test_results');
+                    loadDefaultDatabase();
+                    renderStatistics();
+                    renderPreviewTable();
+                    showToast("تم استعادة قاعدة البيانات النموذجية بنجاح.", "info");
+                    document.getElementById('upload-success-box').classList.add('hidden');
+                }
+            );
+        }
+
+        // Highly secure and robust search process
+        function performSecureSearch() {
+            const searchField = document.getElementById('search-name');
+            const query = searchField.value.trim().toLowerCase();
+            const resultContainer = document.getElementById('result-container');
+            const matchesContainer = document.getElementById('matches-container');
+            const matchesList = document.getElementById('matches-list');
+
+            // Reset views
+            resultContainer.classList.add('hidden');
+            matchesContainer.classList.add('hidden');
+            matchesList.innerHTML = '';
+
+            if (query.length < 2) {
+                showToast("يرجى إدخال اسم الطالب كاملاً أو ثنائياً للبحث بدقة.", "error");
+                return;
+            }
+
+            // Advanced Multi-word Matcher algorithm
+            const queryWords = query.split(/\s+/).filter(w => w);
+            const matches = database.filter(student => {
+                const studentName = student.name.toLowerCase();
+                // Check if all query words exist in the student's name
+                return queryWords.every(word => studentName.includes(word));
+            });
+
+            if (matches.length === 0) {
+                showToast("لم يتم العثور على أي نتائج مطابقة للاسم المدخل. الرجاء التحقق من كتابة الاسم صحيحاً.", "error");
+            } else if (matches.length === 1) {
+                // Perfect unique result
+                selectStudent(matches[0]);
+            } else {
+                // Multiple matches exist, present a selection list to avoid overlap
+                matches.forEach(student => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-right p-3 bg-white hover:bg-amber-100/60 border border-amber-200/60 rounded-xl text-sm font-bold text-slate-800 transition-colors flex items-center justify-between";
+                    btn.innerHTML = `
+                        <span>${student.name}</span>
+                        <span class="text-xs bg-amber-200/60 text-amber-900 px-2 py-1 rounded-md font-medium">عرض النتيجة ↩</span>
+                    `;
+                    btn.onclick = () => selectStudent(student);
+                    matchesList.appendChild(btn);
+                });
+                matchesContainer.classList.remove('hidden');
+                matchesContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Select Student and display placement certificate
+        function selectStudent(student) {
+            // Hide selection interface
+            document.getElementById('matches-container').classList.add('hidden');
+
+            // Map data to the card
+            document.getElementById('res-name').innerText = student.name;
+            document.getElementById('res-age').innerText = student.age;
+            document.getElementById('res-grade').innerText = student.grade;
+            document.getElementById('res-test').innerText = student.test;
+            
+            // Check if level field is blank
+            const levelVal = student.level ? student.level.trim() : 'لم يُحدد بعد';
+            document.getElementById('res-level').innerText = levelVal;
+
+            // Handle special remarks/status in the time box
+            const timeVal = student.time ? student.time.trim() : 'يُحدد لاحقاً';
+            document.getElementById('res-time').innerText = timeVal;
+
+            // Beautiful Badge alerts based on the schedule notes
+            const statusBadge = document.getElementById('status-badge');
+            if (timeVal.toLowerCase().includes('cancelled') || timeVal.toLowerCase().includes('refund')) {
+                statusBadge.innerText = "ملغي / مسترجع";
+                statusBadge.className = "px-3 py-1 bg-red-500 text-white rounded-lg text-xs font-semibold shadow-sm";
+            } else if (timeVal.toLowerCase().includes('no class') || timeVal.toLowerCase().includes('august')) {
+                statusBadge.innerText = "مؤجل لشهر أغسطس";
+                statusBadge.className = "px-3 py-1 bg-amber-500 text-slate-950 rounded-lg text-xs font-semibold shadow-sm";
+            } else {
+                statusBadge.innerText = "حجز نشط ومتاح";
+                statusBadge.className = "px-3 py-1 bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow-sm";
+            }
+
+            // Reveal Result slip
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.classList.remove('hidden');
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Share/Copy placement result text to clipboard
+        function shareResult() {
+            const name = document.getElementById('res-name').innerText;
+            const test = document.getElementById('res-test').innerText;
+            const level = document.getElementById('res-level').innerText;
+            const time = document.getElementById('res-time').innerText;
+
+            const textToCopy = `*إفادة اختبار تحديد المستوى*\n\nالاسم: ${name}\nالاختبار: ${test}\nالمستوى الموصى به: ${level}\nالتوقيت والحالة: ${time}\n\nتمنياتنا لكم بدوام التوفيق والنجاح.`;
+
+            // Compatibility copy technique
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            showToast("تم نسخ نص الإفادة بنجاح! يمكنك الآن لصقها ومشاركتها مع أولياء الأمور عبر تطبيقات المراسلة.", "success");
+        }
+
+        // Render counters and stats in Admin screen
+        function renderStatistics() {
+            document.getElementById('stat-total').innerText = database.length;
+            
+            // Unique tests mapping
+            const testsSet = new Set(database.map(s => s.test.trim().toLowerCase()).filter(t => t));
+            document.getElementById('stat-tests').innerText = testsSet.size;
+
+            const now = new Date();
+            document.getElementById('stat-update-time').innerText = `تحديث: ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+        }
+
+        // Render searchable preview table in Admin screen
+        function renderPreviewTable() {
+            const tbody = document.getElementById('preview-table-body');
+            tbody.innerHTML = '';
+
+            database.forEach((student, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/70 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-bold text-slate-400">${student.id || (index + 1)}</td>
+                    <td class="px-6 py-4 font-bold text-slate-900">${student.name}</td>
+                    <td class="px-6 py-4 text-slate-500">${student.age}</td>
+                    <td class="px-6 py-4 text-slate-500">${student.grade}</td>
+                    <td class="px-6 py-4 font-medium text-slate-600">${student.test}</td>
+                    <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-lg text-xs font-bold ${student.level ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-400'}">${student.level || 'غير محدد'}</span></td>
+                    <td class="px-6 py-4 text-xs font-semibold text-slate-500 max-w-xs truncate" title="${student.time}">${student.time}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Realtime table search filter
+        function filterPreviewTable(query) {
+            const rows = document.querySelectorAll('#preview-table-body tr');
+            const cleanQuery = query.toLowerCase().trim();
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(cleanQuery)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
